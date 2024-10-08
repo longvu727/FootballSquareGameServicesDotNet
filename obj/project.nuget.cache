@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "zck4H8z1k07RHrhZgbfzcY/m2te+e2VaO+C434/8cJPDfwh/TGPdLcWfgvC/u8jZvTSZZ5bPlgV5Y1EXPYr9iQ==",
+  "success": true,
+  "projectFilePath": "/home/longvu727/DotNet/FootballSquares/FootballSquareGameServices/FootballSquares.csproj",
+  "expectedPackageFiles": [
+    "/home/longvu727/.nuget/packages/microsoft.aspnetcore.openapi/8.0.8/microsoft.aspnetcore.openapi.8.0.8.nupkg.sha512",
+    "/home/longvu727/.nuget/packages/microsoft.extensions.apidescription.server/6.0.5/microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "/home/longvu727/.nuget/packages/microsoft.openapi/1.4.3/microsoft.openapi.1.4.3.nupkg.sha512",
+    "/home/longvu727/.nuget/packages/swashbuckle.aspnetcore/6.4.0/swashbuckle.aspnetcore.6.4.0.nupkg.sha512",
+    "/home/longvu727/.nuget/packages/swashbuckle.aspnetcore.swagger/6.4.0/swashbuckle.aspnetcore.swagger.6.4.0.nupkg.sha512",
+    "/home/longvu727/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.4.0/swashbuckle.aspnetcore.swaggergen.6.4.0.nupkg.sha512",
+    "/home/longvu727/.nuget/packages/swashbuckle.aspnetcore.swaggerui/6.4.0/swashbuckle.aspnetcore.swaggerui.6.4.0.nupkg.sha512"
+  ],
+  "logs": []
+}

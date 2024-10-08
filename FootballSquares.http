@@ -1,0 +1,4 @@
+GET {{FootballSquares_HostAddress}}/GetGame/{game_guid}
+Accept: application/json
+
+###
