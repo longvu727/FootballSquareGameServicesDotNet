@@ -10,23 +10,17 @@ namespace FootballSquares.Dtos {
         [property:JsonPropertyName("user_alias")] string userAlias,
         [property:JsonPropertyName("user_name")] string userName
     );
-    public record GameResponse(
-        [property:JsonPropertyName("game_guid")] string guid,
-        [property:JsonPropertyName("sport")] string sport,
-        [property:JsonPropertyName("team_a")] string teamA,
-        [property:JsonPropertyName("team_b")] string teamB,
-        [property:JsonPropertyName("square_size")] int squareSize,
-        [property:JsonPropertyName("row_points")] string rowPoints,
-        [property:JsonPropertyName("column_points")] string columnPoints,
-        [property:JsonPropertyName("football_squares")] List<SquareRow> squareData,
-        
-        [property:JsonPropertyName("error_message")] string errorMessage
-    );
-    public record CreateGameResponse(Guid guid, string sport);
-    public record ReserveGameResponse(
-        bool reserve,
-        [property:JsonPropertyName("error_message")] string errorMessage
-    );
+    
+    public class CreateGameResponse{
+        [JsonPropertyName("game_guid")] public string gameGUID{get; set;} = "";
+        [JsonPropertyName("sport")] public string sport{get; set;} = "";
+        [JsonPropertyName("error_message")] public string errorMessage{get; set;} = "";
+    };
+
+    public class ReserveGameResponse{
+        public bool reserved{get; set;} = false;
+        [JsonPropertyName("error_message")] public string errorMessage = "";
+    };
 
     public class CreateGameRequest{
         [JsonPropertyName("sport")]
@@ -55,4 +49,16 @@ namespace FootballSquares.Dtos {
         [JsonPropertyName("column_index")]
         public int ColumnIndex{get; set;} = 0;
     }
+
+    public class GameResponse{
+        [JsonPropertyName("game_guid")]public string gameGUID{get; set;} = "";
+        [JsonPropertyName("sport")] public string sport{get; set;}="";
+        [JsonPropertyName("team_a")] public string teamA{get; set;}="";
+        [JsonPropertyName("team_b")] public string teamB{get; set;}="";
+        [JsonPropertyName("square_size")] public int squareSize{get; set;}=0;
+        [JsonPropertyName("row_points")] public string rowPoints{get; set;}="";
+        [JsonPropertyName("column_points")] public string columnPoints{get; set;}="";
+        [JsonPropertyName("football_squares")] public List<SquareRow> squareData{get; set;}= new List<SquareRow>();
+        [JsonPropertyName("error_message")] public string errorMessage{get; set;} ="";
+    };
 }

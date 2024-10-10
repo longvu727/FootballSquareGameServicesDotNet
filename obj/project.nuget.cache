@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "zck4H8z1k07RHrhZgbfzcY/m2te+e2VaO+C434/8cJPDfwh/TGPdLcWfgvC/u8jZvTSZZ5bPlgV5Y1EXPYr9iQ==",
+  "dgSpecHash": "+yZ+qaaQb8ppmTEx/myfei51Q8L+7DvDALBovRZSdrSgH/UEHxtYtshHj/DM64jNYwR0m5GT2bu2oWmju4VtOw==",
   "success": true,
-  "projectFilePath": "/home/longvu727/DotNet/FootballSquares/FootballSquareGameServices/FootballSquares.csproj",
+  "projectFilePath": "/home/longvu727/DotNet/FootballSquaresDotNet/FootballSquareGameServicesDotNet/FootballSquares.csproj",
   "expectedPackageFiles": [
     "/home/longvu727/.nuget/packages/microsoft.aspnetcore.openapi/8.0.8/microsoft.aspnetcore.openapi.8.0.8.nupkg.sha512",
     "/home/longvu727/.nuget/packages/microsoft.extensions.apidescription.server/6.0.5/microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",

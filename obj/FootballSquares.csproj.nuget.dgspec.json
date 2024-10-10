@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/longvu727/DotNet/FootballSquares/FootballSquareGameServices/FootballSquares.csproj": {}
+    "/home/longvu727/DotNet/FootballSquaresDotNet/FootballSquareGameServicesDotNet/FootballSquares.csproj": {}
   },
   "projects": {
-    "/home/longvu727/DotNet/FootballSquares/FootballSquareGameServices/FootballSquares.csproj": {
+    "/home/longvu727/DotNet/FootballSquaresDotNet/FootballSquareGameServicesDotNet/FootballSquares.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/longvu727/DotNet/FootballSquares/FootballSquareGameServices/FootballSquares.csproj",
+        "projectUniqueName": "/home/longvu727/DotNet/FootballSquaresDotNet/FootballSquareGameServicesDotNet/FootballSquares.csproj",
         "projectName": "FootballSquares",
-        "projectPath": "/home/longvu727/DotNet/FootballSquares/FootballSquareGameServices/FootballSquares.csproj",
+        "projectPath": "/home/longvu727/DotNet/FootballSquaresDotNet/FootballSquareGameServicesDotNet/FootballSquares.csproj",
         "packagesPath": "/home/longvu727/.nuget/packages/",
-        "outputPath": "/home/longvu727/DotNet/FootballSquares/FootballSquareGameServices/obj/",
+        "outputPath": "/home/longvu727/DotNet/FootballSquaresDotNet/FootballSquareGameServicesDotNet/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/longvu727/.nuget/NuGet/NuGet.Config"

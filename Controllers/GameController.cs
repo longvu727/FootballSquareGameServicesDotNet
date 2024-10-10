@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FootballSquares.ConnectedServices;
 using FootballSquares.ConnectedServices.FootballSquareGameMicroservice;
+using FootballSquares.ConnectedServices.SquareMicroservice;
 using FootballSquares.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -61,28 +62,70 @@ namespace FootballSquares.Controllers{
         }
 
         [HttpGet("/GetGame/{guid}")]
-        public async Task<GameResponse> GetGameByGUID(Guid guid) {
-            GameMicroservice gameMicroservice = new GameMicroservice(this._appConfig);
-            GetGameByGUIDResponse getGameByIDResponse =  await gameMicroservice.getGameByGUIDAsync(new GetGameByGUIDRequest(guid));
+        public async Task<GameResponse> GetGameByGUIDAsync(Guid guid) {
+            GameResponse gameResponse = new GameResponse();
 
-            FootballSquareGameMicroservice footballSquareGameMicroservice = new FootballSquareGameMicroservice();
+            GetGameByGUIDResponse getGameByIDResponse =  await new GameMicroservice(this._appConfig)
+                .getGameByGUIDAsync(new GetGameByGUIDRequest(guid));
+
+            if (getGameByIDResponse.errorMessage != "") {
+                gameResponse.errorMessage = getGameByIDResponse.errorMessage;
+                return gameResponse;
+            }
+
+            gameResponse.gameGUID = getGameByIDResponse.gameGUID;
+            gameResponse.sport = getGameByIDResponse.sport;
+            gameResponse.teamA = getGameByIDResponse.teamA;
+            gameResponse.teamB = getGameByIDResponse.teamB;
+
+
             GetFootballSquareGameByGameIDResponse getFootballSquareGameByGameIDResponse =
-                footballSquareGameMicroservice.getFootballSquareGameByGameID(
-                    new GetFootballSquareGameByGameIDRequest(getGameByIDResponse.gameId)
+                await new FootballSquareGameMicroservice(this._appConfig).getFootballSquareGameByGameIDAsync(
+                    new GetFootballSquareGameByGameIDRequest(getGameByIDResponse.gameID)
                 );
             
-            SquareMicroservice squareMicroservice = new SquareMicroservice();
-            GetSquareBySquareIDResponse getSquareBySquareIDResponse = squareMicroservice.getSquareBySquareID(new GetSquareBySquareIDRequest(
-                getFootballSquareGameByGameIDResponse.footballSquares[0].squareID
-            ));
+            if (getFootballSquareGameByGameIDResponse.errorMessage != ""
+                || (getFootballSquareGameByGameIDResponse.footballSquares != null
+                    && getFootballSquareGameByGameIDResponse.footballSquares.Count < 1)) {
 
-            UserMicroservice userMicroservice = new UserMicroservice();
-            List<SquareRow> squareRows = new List<SquareRow>();
+                gameResponse.errorMessage = getFootballSquareGameByGameIDResponse.errorMessage;
+                return gameResponse;
+            }
 
-            foreach (FootballSquare footballSquare in getFootballSquareGameByGameIDResponse.footballSquares){
-                GetUserByUserIDResponse getUserByUserIDResponse = userMicroservice.getUserByUserID(
-                    new GetUserByUserIDRequest(footballSquare.squareID)
+            var footballSquares = getFootballSquareGameByGameIDResponse.footballSquares 
+                ?? new List<FootballSquare>(){new FootballSquare(0, 0, 0, 0, false, 0, 0, 0, "", "")};
+
+
+            GetSquareBySquareIDResponse getSquareBySquareIDResponse = await new SquareMicroservice(this._appConfig)
+                .getSquareBySquareIDAsync(new GetSquareBySquareIDRequest(footballSquares[0].squareID));
+
+            if (getSquareBySquareIDResponse.errorMessage != "") {
+                gameResponse.errorMessage = getSquareBySquareIDResponse.errorMessage;
+                return gameResponse;
+            }
+
+            gameResponse.squareSize = getSquareBySquareIDResponse.squareSize;
+            gameResponse.rowPoints = getSquareBySquareIDResponse.rowPoints;
+            gameResponse.columnPoints = getSquareBySquareIDResponse.columnPoints;
+
+
+            UserMicroservice userMicroservice = new(this._appConfig);
+            List<SquareRow> squareRows = [];
+
+            foreach (FootballSquare footballSquare in footballSquares){
+                if (footballSquare.userID == 0) {
+                    continue;
+                }
+
+                GetUserByUserIDResponse getUserByUserIDResponse = await userMicroservice.getUserByUserIDAsync(
+                    new GetUserByUserIDRequest(footballSquare.userID)
                 );
+
+                if (getUserByUserIDResponse.errorMessage != "") {
+                    gameResponse.errorMessage = getUserByUserIDResponse.errorMessage;
+                    return gameResponse;
+                }
+
                 squareRows.Add(new SquareRow(
                     footballSquare.columnIndex,
                     footballSquare.rowIndex,
@@ -94,32 +137,92 @@ namespace FootballSquares.Controllers{
                 ));
             }
 
-            return new GameResponse(
-                getGameByIDResponse.gameGUID,
-                getGameByIDResponse.sport,
-                getGameByIDResponse.teamA,
-                getGameByIDResponse.teamB,
+            gameResponse.squareData = squareRows;
 
-                getSquareBySquareIDResponse.squareSize,
-                getSquareBySquareIDResponse.rowPoints,
-                getSquareBySquareIDResponse.columnPoints,
-
-                squareRows,
-
-                ""
-            );
+            return gameResponse;
         }
 
         [HttpPost("/CreateGame")]
-        public CreateGameResponse CreateGame(CreateGameRequest createGameRequest) {
+        public async Task<Dtos.CreateGameResponse> CreateGameAsync(Dtos.CreateGameRequest createGameRequest) {
             Console.WriteLine(JsonSerializer.Serialize(createGameRequest));
-            return new CreateGameResponse(Guid.NewGuid(), sport);
+            var createGameResponse = new Dtos.CreateGameResponse();
+
+            ConnectedServices.CreateGameResponse createGameMicroserviceResponse = await
+                new GameMicroservice(this._appConfig).createGameAsync(
+                    new ConnectedServices.CreateGameRequest(createGameRequest.Sport, createGameRequest.TeamA, createGameRequest.TeamB)
+                );
+            
+            if (createGameMicroserviceResponse.errorMessage != "") {
+                createGameResponse.errorMessage = createGameMicroserviceResponse.errorMessage;
+                return createGameResponse;
+            }
+
+            CreateSquareResponse createSquareResponse = await
+                new SquareMicroservice(this._appConfig).createSquareAsync(
+                    new CreateSquareRequest(createGameRequest.SquareSize)
+                );
+
+            if (createSquareResponse.errorMessage != "") {
+                createGameResponse.errorMessage = createSquareResponse.errorMessage;
+                return createGameResponse;
+            }
+
+            CreateFootballSquareGameResponse createFootballSquareGameResponse = await 
+                new FootballSquareGameMicroservice(this._appConfig).createFootballSquareGame(
+                    new CreateFootballSquareGameRequest(
+                        createSquareResponse.squareID,
+                        createGameMicroserviceResponse.gameID,
+                        createGameRequest.SquareSize
+                    )
+                );
+            
+            if (createFootballSquareGameResponse.errorMessage != "") {
+                createGameResponse.errorMessage = createFootballSquareGameResponse.errorMessage;
+                return createGameResponse;
+            }
+
+            createGameResponse.gameGUID = createGameMicroserviceResponse.gameGUID;
+            createGameResponse.sport = createGameRequest.Sport;
+
+            return createGameResponse;
         }
 
-        [HttpPost("/Reserve")]
-        public ReserveGameResponse ReserveGame(ReserveGameRequest reserveGameRequest){
+        [HttpPost("/ReserveSquares")]
+        public async Task<ReserveGameResponse> ReserveSquaresAsync(ReserveGameRequest reserveGameRequest){
             Console.WriteLine(JsonSerializer.Serialize(reserveGameRequest));
-            return new ReserveGameResponse(true, "");
+            ReserveGameResponse reserveGameResponse = new ReserveGameResponse();
+
+            GetGameByGUIDResponse getGameByIDResponse =  await new GameMicroservice(this._appConfig)
+                .getGameByGUIDAsync(new GetGameByGUIDRequest(reserveGameRequest.GameGUID));
+
+            if (getGameByIDResponse.errorMessage != "") {
+                reserveGameResponse.errorMessage = getGameByIDResponse.errorMessage;
+                return reserveGameResponse;
+            }
+
+            GetUserByUserGUIDResponse getUserByUserGUIDResponse = await new UserMicroservice(this._appConfig)
+                .getUserByUserGUIDAsync(new GetUserByUserGUIDRequest(reserveGameRequest.UserGUID));
+
+            if (getUserByUserGUIDResponse.errorMessage != "") {
+                reserveGameResponse.errorMessage = getUserByUserGUIDResponse.errorMessage;
+                return reserveGameResponse;
+            }
+
+            ReserveFootballSquareResponse reserveFootballSquareResponse = await new FootballSquareGameMicroservice(this._appConfig)
+                .reserveFootballSquare(new ReserveFootballSquareRequest(
+                    getUserByUserGUIDResponse.userID,
+                    getGameByIDResponse.gameID,
+                    reserveGameRequest.ColumnIndex,
+                    reserveGameRequest.RowIndex
+                ));
+            
+            if (reserveFootballSquareResponse.errorMessage != "") {
+                reserveGameResponse.errorMessage = reserveFootballSquareResponse.errorMessage;
+                return reserveGameResponse;
+            }
+
+            reserveGameResponse.reserved = true;
+            return reserveGameResponse;
         }
     }
 }
